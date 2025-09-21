@@ -1,0 +1,65 @@
+name: Update Note Repository with mdbook
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update-note:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the mdbook repository
+    - name: Checkout mdbook repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up mdbook (if it's not already set up)
+    - name: Download and install mdBook v0.4.52
+      run: |
+        curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.52/mdbook-v0.4.52-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C $HOME/.cargo/bin
+        export PATH=$PATH:$HOME/.cargo/bin
+
+    - name: Install tomlq
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+        curl -LO https://github.com/pappasam/tomlq/releases/download/v0.1.0/tomlq-linux-amd64
+        chmod +x tomlq-linux-amd64
+        sudo mv tomlq-linux-amd64 /usr/local/bin/tomlq
+
+
+    # Step 3: Build mdbook
+    - name: Build mdbook
+      run: mdbook build
+
+    # Step 4: Checkout the note repository
+    - name: Checkout note repository
+      uses: actions/checkout@v3
+      with:
+        repository: DingWH03/note
+        token: ${{ secrets.GITHUB_TOKEN }}
+        path: note-repo
+
+    # Step 5: Copy the book directory to the note repository
+    - name: Copy book to note repository
+      run: |
+        # 读取 book.toml 文件中的 title 字段
+        export BOOK_NAME=$(tomlq -r '.book.title' ./book.toml)
+
+        # 将 book 目录复制到 note 仓库并重命名
+        cp -r ./book ./note-repo/book/${BOOK_NAME}
+
+        # 将 book.toml 文件复制到 note 仓库的 list 目录并重命名
+        cp ./book.toml ./note-repo/list/${BOOK_NAME}.toml
+
+
+    # Step 6: Commit and push changes to note repository
+    - name: Commit and push changes
+      run: |
+        cd note-repo
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Update book directory and book.toml from mdbook build for ${BOOK_NAME}"
+        git push origin main  # 或者其他目标分支
