@@ -3,3 +3,19 @@ authors = ["DingVero"]
 language = "zh"
 src = "src"
 title = "Note of C++"
+description = ""
+
+[build]
+create-missing = false
+
+[output.html]
+mathjax-support = true
+git-repository-url = "https://github.com/DingWH03/note-c-plus-plus"
+edit-url-template = "https://github.com/DingWH03/note-c-plus-plus/edit/master/{path}"
+input-404 = "404.md"
+site-url =  "https://note.cxhap.top/Note-of-C++/"
+cname = "note.cxhap.top"
+
+[output.html.fold]
+enable = true
+level = 1
