@@ -55,8 +55,16 @@ jobs:
     - name: Copy book to note repository
       run: |
         BOOK_NAME="${{ steps.get_book_name.outputs.BOOK_NAME }}"
+
+        # 删除目标目录，确保不存在同名目录
+        rm -rf "./note-repo/book/${BOOK_NAME}"
+
+        # 复制 book 目录
         cp -r ./book "./note-repo/book/${BOOK_NAME}"
+
+        # 复制 book.toml 文件
         cp ./book.toml "./note-repo/list/${BOOK_NAME}.toml"
+
 
     # Step 9: Commit and push changes to note repository using SSH
     - name: Commit and push changes
