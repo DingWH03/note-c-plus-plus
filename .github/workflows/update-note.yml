@@ -29,7 +29,6 @@ jobs:
       id: get_book_name
       run: |
         BOOK_NAME=$(jq -r '.book.title' <(toml2json ./book.toml))
-        # Ensure BOOK_NAME is properly quoted to handle spaces
         echo "Book title is: $BOOK_NAME"
         echo "::set-output name=BOOK_NAME::$(echo $BOOK_NAME)"
 
@@ -45,17 +44,21 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         path: note-repo
 
-    # Step 7: Copy the book directory to the note repository and rename it
+    # Step 7: Start ssh-agent and add deploy key
+    # 生成方式ssh-keygen -t ed25519 -C "note-c++" -f github-actions-key -N ""
+    - name: Start ssh-agent and add deploy key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+    # Step 8: Copy the book directory to the note repository and rename it
     - name: Copy book to note repository
       run: |
-        # Get BOOK_NAME from previous step
         BOOK_NAME="${{ steps.get_book_name.outputs.BOOK_NAME }}"
-
-        # Use quotes around variables to handle spaces
         cp -r ./book "./note-repo/book/${BOOK_NAME}"
         cp ./book.toml "./note-repo/list/${BOOK_NAME}.toml"
 
-    # Step 8: Commit and push changes to note repository
+    # Step 9: Commit and push changes to note repository using SSH
     - name: Commit and push changes
       run: |
         BOOK_NAME="${{ steps.get_book_name.outputs.BOOK_NAME }}"
@@ -64,5 +67,4 @@ jobs:
         git config user.email "actions@github.com"
         git add .
         git commit -m "Update book directory and book.toml from mdbook build for ${BOOK_NAME}"
-        # 使用 PAT 进行推送
-        git push https://${{ secrets.PAT_TOKEN }}@github.com/DingWH03/note.git HEAD:master
+        git push git@github.com:DingWH03/note.git HEAD:master
