@@ -20,14 +20,13 @@ jobs:
         curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.52/mdbook-v0.4.52-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C $HOME/.cargo/bin
         export PATH=$PATH:$HOME/.cargo/bin
 
-    - name: Install tomlq
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y jq
-        curl -LO https://github.com/pappasam/tomlq/releases/download/v0.1.0/tomlq-linux-amd64
-        chmod +x tomlq-linux-amd64
-        sudo mv tomlq-linux-amd64 /usr/local/bin/tomlq
+    - name: Install jq
+      run: sudo apt-get install -y jq toml2json
 
+    - name: Get book title from book.toml
+      run: |
+        export BOOK_NAME=$(jq -r '.book.title' <(toml2json ./book.toml))
+        echo "Book title is: $BOOK_NAME"
 
     # Step 3: Build mdbook
     - name: Build mdbook
@@ -44,9 +43,6 @@ jobs:
     # Step 5: Copy the book directory to the note repository
     - name: Copy book to note repository
       run: |
-        # 读取 book.toml 文件中的 title 字段
-        export BOOK_NAME=$(tomlq -r '.book.title' ./book.toml)
-
         # 将 book 目录复制到 note 仓库并重命名
         cp -r ./book ./note-repo/book/${BOOK_NAME}
 
