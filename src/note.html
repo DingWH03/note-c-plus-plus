@@ -1,4 +1,11 @@
 back to content...
 
+<!-- 在页面内容中嵌入 CSS 来控制打印行为 -->
+<style>
+    @media print {
+        .redirect-meta { display: none; }
+    }
+</style>
+
 <!-- 使用 HTML meta 标签进行重定向 -->
-<meta http-equiv="refresh" content="0; url=../index.html" />
+<meta class="redirect-meta" http-equiv="refresh" content="0; url=../index.html" />
