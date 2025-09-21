@@ -58,6 +58,7 @@ jobs:
 
         # 删除目标目录，确保不存在同名目录
         rm -rf "./note-repo/book/${BOOK_NAME}"
+        rm "./note-repo/list/${BOOK_NAME}.toml"
 
         # 复制 book 目录
         cp -r ./book "./note-repo/book/${BOOK_NAME}"
