@@ -261,25 +261,25 @@ std::deque 是双端队列，支持在两端进行高效的插入和删除。为
 
 4. `std::allocator<T> get_allocator() const`: 返回容器所使用的分配器（allocator）。分配器负责容器内存的管理，包括内存的分配、释放等操作。在默认情况下，C++ 标准库容器使用 std::allocator 作为默认的分配器。通过调用 get_allocator()，你可以获取容器使用的分配器，并利用该分配器进行自定义内存操作，或者检查容器如何管理内存。
 
-```c++
-#include <iostream>
-#include <vector>
+    ```c++
+    #include <iostream>
+    #include <vector>
 
-int main() {
-    std::vector<int> vec;
+    int main() {
+        std::vector<int> vec;
 
-    // 获取分配器
-    std::allocator<int> alloc = vec.get_allocator();
+        // 获取分配器
+        std::allocator<int> alloc = vec.get_allocator();
 
-    // 使用分配器进行内存分配
-    int* p = alloc.allocate(5);  // 分配5个int元素的内存
+        // 使用分配器进行内存分配
+        int* p = alloc.allocate(5);  // 分配5个int元素的内存
 
-    // 显示分配的内存地址
-    std::cout << "Allocated memory at: " << p << std::endl;
+        // 显示分配的内存地址
+        std::cout << "Allocated memory at: " << p << std::endl;
 
-    // 记得释放分配的内存
-    alloc.deallocate(p, 5);  // 释放之前分配的5个int内存
+        // 记得释放分配的内存
+        alloc.deallocate(p, 5);  // 释放之前分配的5个int内存
 
-    return 0;
-}
-```
+        return 0;
+    }
+    ```

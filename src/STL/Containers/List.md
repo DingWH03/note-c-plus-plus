@@ -175,57 +175,57 @@ std::list 是基于双向链表实现的容器。与 std::vector 的连续内存
 
 7. `void remove_if (bool (*pred)(const T&));`: pred: 一个谓词（通常是一个函数或函数对象），用于判断元素是否满足删除条件。pred 返回 true 表示删除该元素，返回 false 表示保留该元素。用于删除满足特定条件的所有元素。与 remove 不同的是，remove_if 允许你使用自定义的条件来判断哪些元素需要被删除。
 
-remove_if 会遍历整个容器，将所有满足谓词 pred 条件的元素移到容器的末尾，并返回一个指向容器中第一个不满足条件的元素的迭代器。然后可以使用 erase 来删除这些元素。
+    remove_if 会遍历整个容器，将所有满足谓词 pred 条件的元素移到容器的末尾，并返回一个指向容器中第一个不满足条件的元素的迭代器。然后可以使用 erase 来删除这些元素。
 
-需要注意的是，remove_if 并不会实际删除元素，它只是将符合条件的元素移动到容器的末尾，删除操作需要通过 erase 来完成。
+    需要注意的是，remove_if 并不会实际删除元素，它只是将符合条件的元素移动到容器的末尾，删除操作需要通过 erase 来完成。
 
-假设我们有一个 std::list，并希望删除所有大于 3 的元素：
+    假设我们有一个 std::list，并希望删除所有大于 3 的元素：
 
-```c++
-#include <iostream>
-#include <list>
-#include <algorithm>  // 包含 std::remove_if
+    ```c++
+    #include <iostream>
+    #include <list>
+    #include <algorithm>  // 包含 std::remove_if
 
-bool greater_than_three(int n) {
-    return n > 3;  // 条件：删除大于3的元素
-}
-
-int main() {
-    std::list<int> lst = {1, 2, 3, 4, 5, 6};
-
-    // 使用 remove_if 删除大于 3 的元素
-    lst.remove_if(greater_than_three);
-
-    // 输出结果
-    for (int n : lst) {
-        std::cout << n << " ";  // 输出: 1 2 3
+    bool greater_than_three(int n) {
+        return n > 3;  // 条件：删除大于3的元素
     }
 
-    return 0;
-}
-```
+    int main() {
+        std::list<int> lst = {1, 2, 3, 4, 5, 6};
 
-也可以使用 lambda 表达式作为谓词：
+        // 使用 remove_if 删除大于 3 的元素
+        lst.remove_if(greater_than_three);
 
-```c++
-#include <iostream>
-#include <list>
-#include <algorithm>
+        // 输出结果
+        for (int n : lst) {
+            std::cout << n << " ";  // 输出: 1 2 3
+        }
 
-int main() {
-    std::list<int> lst = {1, 2, 3, 4, 5, 6};
-
-    // 使用 lambda 表达式删除大于 3 的元素
-    lst.remove_if([](int n) { return n > 3; });
-
-    // 输出结果
-    for (int n : lst) {
-        std::cout << n << " ";  // 输出: 1 2 3
+        return 0;
     }
+    ```
 
-    return 0;
-}
-```
+    也可以使用 lambda 表达式作为谓词：
+
+    ```c++
+    #include <iostream>
+    #include <list>
+    #include <algorithm>
+
+    int main() {
+        std::list<int> lst = {1, 2, 3, 4, 5, 6};
+
+        // 使用 lambda 表达式删除大于 3 的元素
+        lst.remove_if([](int n) { return n > 3; });
+
+        // 输出结果
+        for (int n : lst) {
+            std::cout << n << " ";  // 输出: 1 2 3
+        }
+
+        return 0;
+    }
+    ```
 
 ### (5) 遍历函数
 
