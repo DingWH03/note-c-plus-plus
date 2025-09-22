@@ -4,6 +4,7 @@
   - [Containers](./STL/Containers.md)\
     - [Vector](./STL/Containers/Vector.md)
     - [List](./STL/Containers/List.md)
+    - [Deque](./STL/Containers/Deque.md)
 
 --------------------
 
