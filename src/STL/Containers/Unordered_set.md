@@ -5,12 +5,14 @@
 
 `unordered_map`是一个模板类，其定义如下：
 
-`std::unordered_set<Key, Hash = std::hash<Key>, Pred = std::equal_to<Key>, Alloc = std::allocator<Key>>`
+```cpp
+std::unordered_set<Key, Hash = std::hash<Key>, Pred = std::equal_to<Key>, Alloc = std::allocator<Key>>
+```
 
-* Key 是存储在 unordered_set 中的元素类型。
-* Hash 是一个函数或函数对象，用于生成元素的哈希值，默认为 std::hash\<Key>。
-* Pred 是一个二元谓词，用于比较两个元素是否相等，默认为 std::equal_to\<Key>。
-* Alloc 是分配器类型，用于管理内存分配，默认为 std::allocator\<Key>。
+* Key 是存储在 `unordered_set` 中的元素类型。
+* Hash 是一个函数或函数对象，用于生成元素的哈希值，默认为 `std::hash<Key>`。
+* Pred 是一个二元谓词，用于比较两个元素是否相等，默认为 `std::equal_to<Key>`。
+* Alloc 是分配器类型，用于管理内存分配，默认为 `std::allocator<Key>`。
 
 ## 1. 引入
 
@@ -87,7 +89,7 @@
 
 2. `std::pair<iterator, bool> emplace(_Args&&... args)`: 就地构建并插入元素。
 
-3. `iterator emplace_hint(const_iterator hint, _Args&&... args)`: 就地构建并插入元素，且指定插入位置，但是如果指定位置错误会发生重排序，最坏情况下可能会降低插入的效率。
+3. `iterator emplace_hint(const_iterator hint, _Args&&... args)`: 就地构建并插入元素，且指定插入位置，但是如果指定位置错误会发生重排序，最坏情况下可能会降低插入的效率。在哈希索引的前提下是无序的，因此该插入操作等效于`insert`。
 
 #### (4) 删除元素
 
