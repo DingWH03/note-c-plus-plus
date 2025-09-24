@@ -7,7 +7,23 @@
 `unordered_multiset` 的模板定义如下：
 
 ```cpp
-std::unordered_multiset<Key, Hash = std::hash<Key>, Pred = std::equal_to<Key>, Alloc = std::allocator<Key>>
+template<
+    class Key,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>,
+    class Allocator = std::allocator<Key>
+> class unordered_multiset; // since C++11
+```
+
+```cpp
+namespace pmr {
+    template<
+        class Key,
+        class Hash = std::hash<Key>,
+        class Pred = std::equal_to<Key>
+    > using unordered_multiset = std::unordered_multiset<Key, Hash, Pred,
+                                     std::pmr::polymorphic_allocator<Key>>;
+} // since C++17
 ```
 
 * Key：存储在 `unordered_multiset` 中的元素类型。
