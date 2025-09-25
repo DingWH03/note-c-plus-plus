@@ -2,6 +2,9 @@
 
 [Introduction](./Introduction.md)
 
+- [数据类型](./Types.md)
+  - [基本数据类型](./Types/Fundamental_Types.md)
+  - [类型推导](./Types/Deducing_Types.md)
 - [内存管理](./Memory.md)
   - [智能指针](./Memory/Smart_Pointer.md)
     - [auto_ptr](./Memory/Smart_Pointer/auto_ptr.md)
