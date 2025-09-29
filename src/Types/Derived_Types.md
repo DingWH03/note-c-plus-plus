@@ -31,7 +31,7 @@
 | `std::map`    | 键值对容器                 | `std::map<int, std::string> m;`     |
 | `std::set`    | 唯一值集合                 | `std::set<int> s = {1, 2, 3};`      |
 
-> std::string类型的详细介绍见[字符串类型]()章节，其他标准库类型见[STL](../STL.md)章节。
+> std::string类型的详细介绍见[字符串类型](./Character.md)章节，其他标准库类型见[STL](../STL.md)章节。
 
 ## `typedef` 声明
 
