@@ -34,6 +34,7 @@
     - [Unordered_multiset](./STL/Containers/Unordered_multiset.md)
     - [Unordered_map](./STL/Containers/Unordered_map.md)
     - [Unordered_multimap](./STL/Containers/Unordered_multimap.md)
+  - [Algorithms](./STL/Algorithms.md)
 
 --------------------
 
