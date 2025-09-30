@@ -31,6 +31,7 @@
 | `unsigned` | 无符号类型                | `unsigned int y = 10;` |
 | `short`    | 短整型                  | `short int z = 100;`   |
 | `long`     | 长整型                  | `long int a = 100000;` |
+| `static` | 静态存储期，或内部链接，或类级别共享 | `static int count = 0;` |
 | `const`    | 常量，值不可修改             | `const int b = 5;`     |
 | `constexpr` | 编译期常量，值在编译时计算，可用于常量表达式和元编程 | `constexpr int size = 10;` |
 | `volatile` | 变量可能被意外修改，禁止编译器优化    | `volatile int c = 10;` |
@@ -225,6 +226,86 @@ int main() {
     std::get<0>(t) = 42;
     std::cout << std::get<0>(t) << std::endl;  // 42
 
+    return 0;
+}
+```
+
+### `static`
+
+`static` 关键字在 C++ 中有三种主要用途，取决于它所修饰的对象和作用域，而在C语言中由于不支持类从而只支持修饰**局部静态变量**和**外部静态变量、函数**。
+
+#### 1\. 局部变量（函数内）- 改变存储期
+
+当 `static` 用于函数内的局部变量时，它改变了变量的**存储期**（Storage Duration）。
+
+* **存储期**：`static` 局部变量在程序运行期间**只会被初始化一次**，且生命周期与整个程序相同（静态存储期），但其**作用域**仍限定在定义它的函数内部。
+* **用途**：用于记录函数被调用的次数，或者在多次调用中保持某个状态。
+
+<!-- end list -->
+
+```cpp
+void func() {
+    static int count = 0; // 只在程序启动时初始化一次
+    count++;
+    std::cout << "Count: " << count << std::endl;
+}
+// 每次调用 func()，count 都会递增，而不是重置为 0
+```
+
+#### 2\. 全局变量和函数（文件作用域）- 改变链接性
+
+当 `static` 用于全局变量或普通函数时，它改变了它们的**链接性**（Linkage）。
+
+* **链接性**：将默认的**外部链接**（External Linkage，可以在其他源文件访问）改为**内部链接**（Internal Linkage）。
+* **用途**：使变量或函数只在其定义的\*\*当前翻译单元（源文件）\*\*中可见和可用，避免与其他源文件中的同名标识符发生冲突。
+
+<!-- end list -->
+
+```cpp
+// file1.cpp
+static int global_data = 10; // 只能在 file1.cpp 中访问
+static void helper_func() {  // 只能在 file1.cpp 中调用
+    // ...
+}
+```
+
+#### 3\. 类成员（成员变量和成员函数）- 类级别共享
+
+当 `static` 用于类内部的成员时，它使成员成为**类级别**的共享资源，而不是每个对象独有的资源。
+
+* **静态成员变量**：
+  * 该变量为**所有**类的对象所共享，**只存在一个副本**。
+  * 它必须在**类外部**进行定义和初始化（除非是 `const static` 整数类型）。
+  * 可以通过类名或对象访问。
+* **静态成员函数**：
+  * 它不依赖于任何特定的类对象。
+  * 它**不能**直接访问非静态的成员变量或成员函数（因为它没有 `this` 指针）。
+  * 通常用于访问和操作静态成员变量，或作为工具函数。
+
+<!-- end list -->
+
+```cpp
+class MyClass {
+public:
+    static int object_count; // 静态成员变量声明
+
+    MyClass() {
+        object_count++;
+    }
+
+    static int get_count() { // 静态成员函数
+        return object_count;
+    }
+};
+
+// 在类外定义和初始化静态成员
+int MyClass::object_count = 0;
+
+int main() {
+    MyClass obj1;
+    MyClass obj2;
+    // 使用类名直接访问静态成员
+    std::cout << MyClass::get_count() << std::endl; // 输出：2
     return 0;
 }
 ```
