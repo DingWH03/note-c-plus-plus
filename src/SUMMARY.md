@@ -24,7 +24,9 @@
 - [STL](./STL.md)
   - [Containers](./STL/Containers.md)\
     - [Vector](./STL/Containers/Vector.md)
+    - [Array](./STL/Containers/Array.md)
     - [List](./STL/Containers/List.md)
+    - [Forward_list](./STL/Containers/Forward_list.md)
     - [Deque](./STL/Containers/Deque.md)
     - [Set](./STL/Containers/Set.md)
     - [Multiset](./STL/Containers/Multiset.md)
@@ -34,6 +36,9 @@
     - [Unordered_multiset](./STL/Containers/Unordered_multiset.md)
     - [Unordered_map](./STL/Containers/Unordered_map.md)
     - [Unordered_multimap](./STL/Containers/Unordered_multimap.md)
+    - [Stack](./STL/Containers/Stack.md)
+    - [Queue](./STL/Containers/Queue.md)
+    - [Priority_queue](./STL/Containers/Priority_queue.md)
   - [Algorithms](./STL/Algorithms.md)
 
 --------------------
