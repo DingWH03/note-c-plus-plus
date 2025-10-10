@@ -2,6 +2,11 @@
 
 ## C++派生数据类型
 
+在 C++ 中，**派生数据类型（Derived Types）** 是由基本数据类型或其他派生类型构建而来的类型。
+它们扩展了语言的表达能力，使得开发者能够通过组合与抽象创建更复杂的数据结构与行为模型。
+
+派生类型包括数组、指针、引用、函数、结构体、类、联合体以及枚举类型等。
+
 | 数据类型 | 描述                                           | 示例                               |
 | -------- | ---------------------------------------------- | ---------------------------------- |
 | 数组     | 相同类型元素的集合                             | `int arr[5] = {1, 2, 3, 4, 5};`    |
@@ -13,49 +18,156 @@
 | 联合体   | 多个成员共享同一块内存                         | `union Data { int i; float f; };`  |
 | 枚举     | 用户定义的整数常量集合                         | `enum Color { RED, GREEN, BLUE };` |
 
-## C++类型别名
+## 数组（Array）
 
-| 别名      | 描述                             | 示例                 |
-| --------- | -------------------------------- | -------------------- |
-| `typedef` | 为现有类型定义别名               | `typedef int MyInt;` |
-| `using`   | 为现有类型定义别名（C++11 引入） | `using MyInt = int;` |
-
-## C++标准库类型
-
-| 数据类型      | 描述                       | 示例                                |
-| ------------- | -------------------------- | ----------------------------------- |
-| `std::string` | 字符串类型                 | `std::string s = "Hello";`          |
-| `std::vector` | 动态数组                   | `std::vector<int> v = {1, 2, 3};`   |
-| `std::array`  | 固定大小数组（C++11 引入） | `std::array<int, 3> a = {1, 2, 3};` |
-| `std::pair`   | 存储两个值的容器           | `std::pair<int, float> p(1, 2.0);`  |
-| `std::map`    | 键值对容器                 | `std::map<int, std::string> m;`     |
-| `std::set`    | 唯一值集合                 | `std::set<int> s = {1, 2, 3};`      |
-
-> std::string类型的详细介绍见[字符串类型](./Character.md)章节，其他标准库类型见[STL](../../STL.md)章节。
-
-## `typedef` 声明
-
-`typedef` 允许为一个已有的类型取一个新的名字。其语法为：
+数组用于存储**相同类型元素的固定长度序列**，在内存中是连续存放的。
 
 ```cpp
-typedef type newname;
-```
+int numbers[5] = {1, 2, 3, 4, 5};
+std::cout << numbers[2]; // 输出 3
+````
 
-例如，下面的语句会告诉编译器 `feet` 是 `int` 的另一个名称：
+* **下标从 0 开始**，越界访问会导致未定义行为（Undefined Behavior）。
+* 在函数参数中，数组会**退化为指针**：
+
+  ```cpp
+  void printArray(int arr[], int size); // 等价于 void printArray(int* arr, int size);
+  ```
+
+* 若需要安全的动态数组，请使用 `std::vector`。
+
+## 指针（Pointer）
+
+指针是存储变量地址的变量，是 C++ 的核心特性之一。
 
 ```cpp
-typedef int feet;
+int a = 10;
+int* p = &a;    // 指针p指向a
+std::cout << *p; // 输出10
 ```
 
-这样，您可以声明一个整型变量 `distance`，如：
+**关键点：**
+
+* `*` 用于定义或解引用指针；
+* `&` 用于取地址；
+* 指针类型必须与目标对象类型一致；
+* `nullptr` 表示空指针（C++11 引入）。
+
+**常见错误：**
+
+* 解引用空指针或野指针会导致崩溃；
+* 动态内存需成对使用：
+
+  ```cpp
+  int* p = new int(5);
+  delete p;
+  ```
+
+推荐使用智能指针（`std::unique_ptr`, `std::shared_ptr`）来避免内存泄漏。
+
+## 引用（Reference）
+
+引用是另一个变量的**别名**，必须在定义时初始化。
 
 ```cpp
-feet distance;
+int value = 10;
+int& ref = value;
+ref = 20; // value 也变为 20
 ```
 
-## 枚举类型
+* 引用不能为空；
+* 绑定后不能再更改引用目标；
+* 常用于函数参数传递以避免拷贝：
 
-枚举类型（`enum`）是 C++ 中的一种派生数据类型，它是由用户定义的若干枚举常量的集合。枚举通常用于一个变量只有几种可能的值的情况。所谓"枚举"是指将变量的值一一列举出来，变量的值只能在列举出来的值的范围内。
+  ```cpp
+  void modify(int& x) { x *= 2; }
+  ```
+
+C++11 还引入了 **右值引用 (`T&&`)**，用于支持移动语义和完美转发。
+
+## 函数类型（Function Type）
+
+函数本身也是一种类型，其类型由**返回值类型**和**参数类型列表**组成。
+
+```cpp
+int add(int a, int b) { return a + b; }
+```
+
+函数类型也可通过**指针或引用**使用：
+
+```cpp
+int (*funcPtr)(int, int) = add;
+std::cout << funcPtr(2, 3); // 输出5
+```
+
+C++11 提供了更安全的函数封装：
+
+* `std::function`：可存储任意可调用对象；
+* `auto` 和 Lambda 表达式使函数类型推导更简洁。
+
+## 结构体（struct）
+
+结构体是用户自定义的复合类型，可包含多个不同类型的成员。
+
+```cpp
+struct Point {
+    int x;
+    int y;
+};
+
+Point p1 = {10, 20};
+std::cout << p1.x << ", " << p1.y;
+```
+
+* 默认成员访问权限是 **public**；
+* 可以包含成员函数；
+* 可以与类（`class`）结合使用面向对象设计。
+
+## 类（class）
+
+类是 C++ 的核心概念之一，支持 **封装（Encapsulation）**、**继承（Inheritance）** 和 **多态（Polymorphism）**。
+
+```cpp
+class Rectangle {
+private:
+    int width, height;
+
+public:
+    Rectangle(int w, int h) : width(w), height(h) {}
+    int area() const { return width * height; }
+};
+```
+
+* 成员默认为 **private**；
+* 支持构造函数、析构函数、运算符重载等；
+* 是对象与抽象数据类型的基础。
+
+> [类与对象](../CLass&Object.md)是C++语言极为重要的内容。
+
+## 联合体（union）
+
+联合体（`union`）允许多个成员**共用同一块内存**。
+
+```cpp
+union Data {
+    int i;
+    float f;
+    char c;
+};
+
+Data d;
+d.i = 10;
+std::cout << d.i; // 输出10
+d.f = 3.14;       // i 被覆盖
+```
+
+* 占用的内存大小等于最大成员的大小；
+* 只能同时存储一个有效成员；
+* 可用于节省内存或实现类型复用。
+
+## 枚举类型（enum）
+
+枚举用于定义一组具名的整数常量，提高代码可读性与类型安全。
 
 创建枚举类型时，使用关键字 `enum`。其一般形式为：
 
@@ -82,3 +194,49 @@ enum color { red, green=5, blue };
 ```
 
 在此示例中，`blue` 的值为 6，因为默认情况下，每个名称都会比它前面一个名称大 1，而 `red` 的值仍然为 0。
+
+C++11 引入 **强类型枚举**：
+
+  ```cpp
+  enum class Status { OK, ERROR };
+  Status s = Status::OK;
+  ```
+
+> 强类型枚举不会隐式转换为整数，作用域也更加安全。
+
+## C++类型别名
+
+类型别名可通过 `typedef` 或 `using` 定义。
+
+| 关键字       | 描述           | 示例                   |
+| --------- | ------------ | -------------------- |
+| `typedef` | 为已有类型定义别名    | `typedef int MyInt;` |
+| `using`   | C++11 引入的新语法 | `using MyInt = int;` |
+
+示例：
+
+```cpp
+typedef unsigned long ulong_t;
+using ushort_t = unsigned short;
+```
+
+`using` 语法更直观，且支持模板别名：
+
+```cpp
+template <typename T>
+using Vec = std::vector<T>;
+Vec<int> v = {1, 2, 3};
+```
+
+## C++标准库类型
+
+| 数据类型      | 描述                       | 示例                                |
+| ------------- | -------------------------- | ----------------------------------- |
+| `std::string` | 字符串类型                 | `std::string s = "Hello";`          |
+| `std::vector` | 动态数组                   | `std::vector<int> v = {1, 2, 3};`   |
+| `std::array`  | 固定大小数组（C++11 引入） | `std::array<int, 3> a = {1, 2, 3};` |
+| `std::pair`   | 存储两个值的容器           | `std::pair<int, float> p(1, 2.0);`  |
+| `std::map`    | 键值对容器                 | `std::map<int, std::string> m;`     |
+| `std::set`    | 唯一值集合                 | `std::set<int> s = {1, 2, 3};`      |
+
+> std::string类型的详细介绍见[字符串类型](./Character.md)章节，其他标准库类型见[STL](../../STL.md)章节。
