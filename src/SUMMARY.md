@@ -10,6 +10,8 @@
     - [字符串类型](./Basis/Types/Character.md)
     - [类型转换](./Basis/Types/Type_Conversion.md)
     - [类型推导](./Basis/Types/Deducing_Types.md)
+  - [控制结构](./Basis/Structure.md)
+  - [操作符](./Basis/Operators.md)
   - [类与对象](./Basis/CLass&Object.md)
 - [C++进阶](./Advance.md)
   - [内存管理](./Advance/Memory.md)
