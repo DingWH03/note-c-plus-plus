@@ -22,7 +22,7 @@
   - [操作符](./Basis/Operators.md)
   - [函数](./Basis/Functions.md)
   - [类与对象](./Basis/CLass&Object.md)
-  - [模板]()
+  - [模板](./Basis/Template.md)
 - [C++进阶](./Advance.md)
   - [内存管理](./Advance/Memory.md)
     - [智能指针](./Advance/Memory/Smart_Pointer.md)
