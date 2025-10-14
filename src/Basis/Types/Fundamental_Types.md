@@ -36,6 +36,8 @@
 | `constexpr` | 编译期常量，值在编译时计算，可用于常量表达式和元编程 | `constexpr int size = 10;` |
 | `volatile` | 变量可能被意外修改，禁止编译器优化    | `volatile int c = 10;` |
 | `mutable`  | 类成员可以在 `const` 对象中修改 | `mutable int counter;` |
+| `extern`   | 声明一个在其他源文件中定义的变量或函数，用于跨文件共享全局符号      | `extern int global_var;`    |
+| `register` | 建议编译器将变量存放在 CPU 寄存器中以提高访问速度（现代编译器多已自动优化） | `register int counter = 0;` |
 
 ## C++11 新增数据类型
 
@@ -369,7 +371,7 @@ int main() {
 
 3. 作用域与链接
 
-   * 在 C 中，`const` 全局变量默认是 **外部链接**，除非显式加 `static`。
+   * 在 C 中，`const` 全局变量默认是 **外部链接**，除非显式加 `static`使得在本文件可见。
    * 在 C++ 中，`const` 全局变量默认是 **内部链接**（只在本翻译单元内可见），若要在多个文件共享，需加 `extern`。
 
 4. 局限性
@@ -422,3 +424,78 @@ int main() {
    const int a = std::time(nullptr); // 合法，运行期决定
    constexpr int b = std::time(nullptr); // 错误，不能在编译期求值
    ```
+
+### `extern`
+
+`extern` 关键字用于**声明**而非定义变量或函数。
+它通常出现在多文件项目中，用于在一个文件中访问另一个文件定义的全局变量或函数。
+
+* 作用：
+
+  * 告诉编译器“该变量或函数在别处定义”；
+  * 不会为其分配存储空间（除非在定义处）；
+  * 避免重复定义全局符号。
+
+```cpp
+// file1.cpp
+int count = 10;  // 定义全局变量
+
+// file2.cpp
+#include <iostream>
+extern int count;  // 声明外部变量（非定义）
+int main() {
+    std::cout << count << std::endl;  // 输出 10
+    return 0;
+}
+```
+
+* 在C++中：
+
+  C++ 默认情况下，`const` 全局变量具有内部链接（`internal linkage`），也就是仅在本文件内可见。
+  若希望跨文件共享一个常量变量，必须结合 `extern` 使用：
+
+  ```cpp
+  // file1.cpp
+  extern const int BUFFER_SIZE = 1024;
+
+  // file2.cpp
+  extern const int BUFFER_SIZE;  // 声明外部常量
+  ```
+
+* 与函数结合使用：
+
+  对于函数来说，`extern` 是默认属性，即所有非 `static` 函数都具有外部链接性，因此通常可省略：
+
+  ```cpp
+  extern void foo();  // 与 void foo(); 等价
+  ```
+
+### `register`
+
+`register` 是早期 C/C++ 时代用于**提升变量访问速度**的关键字，提示编译器将变量存储在 CPU 寄存器中，而非内存中。
+
+* 特点：
+
+  * 变量可能被存放在 CPU 寄存器中，而非内存；
+  * 不能对 `register` 变量使用取地址操作符 `&`；
+  * 仅能修饰局部变量或函数参数；
+  * 在现代编译器中通常**被自动优化机制取代**，因此多用于教学或历史理解。
+
+```cpp
+#include <iostream>
+
+int main() {
+    register int i;  // 建议编译器将 i 放入寄存器中
+    for (i = 0; i < 5; ++i) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}
+```
+
+* **局限性：**
+
+  * 编译器不保证一定会将其放入寄存器；
+  * 不能取地址（即 `&i` 是非法的）；
+  * 在现代 C++ 中几乎没有实际性能提升，优化器会自动选择合适的寄存器分配策略。
