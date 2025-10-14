@@ -148,7 +148,7 @@ Color c = GREEN;
 enum ErrorCode { OK = 0, NotFound = 404, ServerError = 500 };
 ```
 
-## 4. 变量与常量的对比
+## 四、变量与常量的对比
 
 | 特性      | 变量           | 常量                 |
 | ------- | ------------ | ------------------ |
@@ -157,7 +157,7 @@ enum ErrorCode { OK = 0, NotFound = 404, ServerError = 500 };
 | 存储位置    | 栈 / 堆 / 静态区  | 通常在只读区             |
 | 示例      | `int x = 5;` | `const int x = 5;` |
 
-## 5. 示例代码
+## 五、示例代码
 
 ```cpp
 #include <iostream>
