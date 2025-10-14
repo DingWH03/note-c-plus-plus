@@ -168,3 +168,87 @@ namespace VLNN = VeryLongNamespaceName;
 // 使用别名访问
 VLNN::func();
 ```
+
+## 五、`std` 命名空间
+
+### 1. `std` 命名空间简介
+
+* **标准库**：`std` 是 **Standard**（标准）的缩写，是 C++ **标准库**（Standard Library）中所有实体（Entities）的容器。
+* **内容**：所有 C++ 标准库提供的类、函数、变量、模板等都被声明在 `std` 命名空间内。
+  * 常见的例子包括：
+    * **输入/输出**：`std::cout`, `std::cin`, `std::endl`
+    * **字符串**：`std::string`
+    * **容器**：`std::vector`, `std::map`, `std::list`
+    * **算法**：`std::sort`, `std::find`
+    * **其他**：`std::unique_ptr`, `std::exception` 等。
+
+### 2. 使用 `std` 成员
+
+由于标准库的所有内容都在 `std` 命名空间内，因此需要使用前面介绍的三种方式来访问它们。
+
+#### 示例：完整限定名称（推荐）
+
+这是最安全、最清晰的方式，尤其是在头文件和库代码中。
+
+```cpp
+#include <iostream>
+
+void print_message() {
+    // 每次使用都需要前缀 std::
+    std::cout << "Hello, C++ World!" << std::endl;
+}
+```
+
+#### 示例：`using` 声明
+
+将特定的标准库成员引入当前作用域。
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using std::cout;
+using std::vector;
+
+void process_data() {
+    // 可以直接使用 cout 和 vector
+    cout << "Processing data..." << '\n';
+    vector<int> numbers = {1, 2, 3};
+    // 但 std::endl 仍需限定
+    cout << "Done." << std::endl;
+}
+```
+
+#### 示例：`using` 指示词
+
+将整个 `std` 命名空间引入当前作用域。
+
+```cpp
+#include <iostream>
+
+// 将所有 std:: 成员引入
+using namespace std;
+
+void dangerous_example() {
+    // 可以直接使用 cout 和 endl
+    cout << "This is quick but potentially risky." << endl;
+
+    // 风险：如果用户定义了名为 'cout' 的变量，则会发生命名冲突或名称隐藏。
+    // int cout = 100; // 错误：在某些编译器上可能导致二义性或隐藏 std::cout
+}
+```
+
+### 3. C 库头文件的兼容性
+
+C++ 标准库也包含了 C 语言的标准库函数（如 `printf`, `malloc` 等）。
+
+* **C++ 风格**：使用 `c` 前缀和不带 `.h` 后缀的头文件（例如，`<cmath>` 对应 C 语言的 `<math.h>`）。
+  * 在 C++ 风格的头文件中，所有函数和类型都位于 **`std::`** 命名空间中。
+* **C 风格（兼容性）**：使用带 `.h` 后缀的头文件（例如，`<math.h>`）。
+  * 为了兼容性，在 C 风格的头文件中，函数和类型通常同时位于**全局命名空间**和 **`std::`** 命名空间中。
+
+| 语言 | 头文件 | 函数位置 | 示例 |
+| :--- | :--- | :--- | :--- |
+| C | `<stdlib.h>` | 全局命名空间 | `malloc(...)` |
+| C++ | `<cstdlib>` | `std::` 命名空间 | `std::malloc(...)` |
+| C++ (兼容性) | `<stdlib.h>` | 全局 + `std::` | `malloc(...)` 或 `std::malloc(...)` |
