@@ -588,3 +588,139 @@ Destructed: 王五
 Destructed: 李四
 Destructed: 张三
 ```
+
+## 四、面向对象的三大特征
+
+面向对象编程（OOP）的核心思想可以概括为**三大特征**：封装（Encapsulation）、继承（Inheritance）和多态（Polymorphism）。这三大特征是 C++ 类与对象设计的基础，也是理解和应用面向对象程序设计的关键。
+
+> 继承与多态的内容属于C++[面向对象进阶](../Advance/Object.md)内容。
+
+### 1. 封装（Encapsulation）
+
+封装是面向对象最基本的特征之一，也是类和对象概念的核心。
+
+封装的核心思想是将对象的状态（数据）和行为（函数）组合到一个整体——类中，并通过访问控制机制对外部可见性进行限制和保护，对受保护的私有数据仅可以使用成员函数进行操作。
+
+**作用**：
+
+  1. 对内部数据进行保护，只允许可信的方法或对象访问；
+  2. 隐藏实现细节，使类的使用者无需了解内部工作原理；
+  3. 提供统一接口，提高模块化和可维护性。
+
+示例：
+
+```cpp
+class Student {
+private:
+    std::string name; // 私有成员，外部无法直接访问
+    int age;
+
+public:
+    void setInfo(const std::string& n, int a) { // 提供接口修改数据
+        name = n;
+        age = a;
+    }
+
+    void display() const { // 提供接口访问数据
+        std::cout << "Name: " << name << ", Age: " << age << std::endl;
+    }
+};
+```
+
+在上例中，`name` 和 `age` 仅能通过 `setInfo` 和 `display` 访问和修改，这就是封装的典型应用。
+
+封装就是把客观事物封装成抽象类，并控制外部访问权限，保护数据安全并提高代码可维护性。
+
+### 2. 继承（Inheritance）
+
+继承是面向对象中的第二大特征，它允许新建的类**复用**已有类的属性和行为，并在此基础上进行扩展或修改。
+
+被继承的类称为基类（Base Class）或父类，从基类继承的类称为派生类（Derived Class）或子类。
+
+**作用**：
+
+  1. 代码复用：无需重复编写已有功能；
+  2. 构建类层次：形成“父类-子类”的组织结构；
+  3. 支持多态：继承是实现运行时多态的前提。
+
+**实现方式**：
+
+* 公有继承（public inheritance）：基类公有成员在派生类中仍为公有
+* 保护继承（protected inheritance）：基类公有/保护成员在派生类中变为保护
+* 私有继承（private inheritance）：基类公有/保护成员在派生类中变为私有
+* 组合（Composition）：在类中包含另一个类对象作为成员，用于实现“has-a”关系
+
+示例：
+
+```cpp
+class Person {
+protected:
+    std::string name;
+public:
+    void setName(const std::string& n) { name = n; }
+};
+
+class Student : public Person { // Student 继承 Person
+private:
+    int grade;
+public:
+    void setGrade(int g) { grade = g; }
+    void showInfo() const {
+        std::cout << "Name: " << name << ", Grade: " << grade << std::endl;
+    }
+};
+```
+
+> `Student` 继承了 `Person` 的 `name`，同时扩展了 `grade`，这就是继承的典型应用。
+> 如果需要类间关系更紧密，还可以通过组合在类中嵌套其他类。
+
+继承是在无需重写已有类功能的前提下扩展功能，实现类复用与层次化管理。
+
+### 3. 多态（Polymorphism）
+
+多态是面向对象的第三大特征，允许同一个操作作用于不同对象表现出不同的行为。
+
+多态允许父类指针或引用指向子类对象，并根据对象实际类型执行不同操作。
+
+> 英文 polymorphism 来自“多形性”，意为“一个接口，多种形态”。
+
+**类型**：
+
+  1. 编译时多态（静态多态）：
+
+     * 通过函数重载、运算符重载实现
+     * 在编译阶段就确定调用哪个函数
+
+  2. 运行时多态（动态多态）：
+
+     * 通过虚函数（virtual）实现
+     * 在程序运行时根据实际对象类型决定调用哪个函数
+
+实现方式：
+
+* 覆盖（Override）：派生类重新定义基类的虚函数，运行时根据实际对象调用
+* 重载（Overload）：同名函数参数不同，编译时决定调用哪个函数
+
+示例（运行时多态）：
+
+```cpp
+class Animal {
+public:
+    virtual void speak() const { std::cout << "Animal sound" << std::endl; }
+};
+
+class Dog : public Animal {
+public:
+    void speak() const override { std::cout << "Woof!" << std::endl; }
+};
+
+int main() {
+    Animal* a = new Dog();
+    a->speak(); // 输出 "Woof!"，根据实际对象类型调用
+    delete a;
+}
+```
+
+> `speak` 被声明为虚函数，父类指针调用时根据子类实际类型执行函数，这就是运行时多态。
+
+多态使得**统一接口处理不同对象成为可能**，提高了程序的灵活性和可扩展性。
