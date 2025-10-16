@@ -9,6 +9,7 @@ description = ""
 create-missing = false
 
 [output.html]
+additional-css = ["mdbook-admonish.css", "./mdbook-admonish.css"]
 mathjax-support = true
 git-repository-url = "https://github.com/DingWH03/note-c-plus-plus"
 edit-url-template = "https://github.com/DingWH03/note-c-plus-plus/edit/master/{path}"
@@ -19,3 +20,7 @@ cname = "note.cxhap.top"
 [output.html.fold]
 enable = true
 level = 1
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "3.1.0" # do not edit: managed by `mdbook-admonish install`
