@@ -16,7 +16,7 @@
 
 在容器中增加元素时，`std::vector` 会根据存储元素的大小，在内存上申请一块空间用于存储数据。空间的大小通常会大于所存储元素的实际大小，并且预留出一部分空间，以便再次增加数据时无需重新开辟空间。
 
-当容器再次增加新的元素时，首先判断预留的空间是否够用：够用就直接在预留空间中存储；不够用则要在内存中开辟一整块新的更大的空间，把原来的数据拷贝（或移动）过去，再在新内存中加入新元素，这样才能保证存储空间始终连续。新开辟的空间同样会预留一部分，以便后续继续增加数据。当 `std::vector` 增长时，容量通常会按一定比例（通常是 1.5 或 2）增长，这有助于减少频繁的重新分配，提升性能。
+当容器再次增加新的元素时，首先判断预留的空间是否够用：够用就直接在预留空间中存储；不够用则要在内存中开辟一整块新的更大的空间，把原来的数据拷贝（或移动）过去，再在新内存中加入新元素，这样才能保证存储空间始终连续。新开辟的空间同样会预留一部分，以便后续继续增加数据。当 `std::vector` 增长时，容量通常会按一定比例增长（常见的实现是 1.5 倍或 2 倍），这有助于减少频繁的重新分配，提升性能。
 
 需要注意的是，扩容意味着元素被搬到了新的内存地址，扩容之前保存的迭代器、指针和引用都会失效，继续使用属于未定义行为。如果提前知道元素数量，可以用 `reserve()` 预留空间，避免中途扩容。
 
@@ -27,7 +27,7 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
 // *p;              // 危险：未定义行为
 ```
 
-上面说的"元素连续存储、可以取地址"，对 `std::vector<bool>` 并不成立。标准库对 `bool` 做了特化，把它实现成了一个按位存储的位容器，每个元素只占 1 个二进制位，8 个元素合起来才占 1 个字节，因此 `std::vector<bool>` 在省内存的同时也失去了普通 vector 的很多性质。这一点在后面几节会陆续提到。
+上面说的"元素连续存储、可以取地址"，对 `std::vector<bool>` 并不成立。标准库对 `bool` 做了特化，把它实现成了一个按位存储的位容器，每个元素只占 1 个二进制位，8 个元素合起来才占 1 个字节，因此 `std::vector<bool>` 在省内存的同时也失去了普通 vector 的很多性质。需要说明的是，标准只要求实现"尽可能省空间"，具体怎么优化由实现决定，按位存储是最常见的做法。这一点在后面几节会陆续提到。
 
 ## 3. 方法
 
@@ -40,13 +40,13 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
     std::vector<int> vec = {1, 2, 3, 4, 5};
     ```
 
-2. `vector(size_t nSize)`: 创建一个包含 `nSize` 个元素的 vector，元素为值初始化（内置类型为 0）
+2. `vector(size_type count)`: 创建一个包含 `count` 个元素的 vector，元素为值初始化（内置类型为 0）
 
     ```c++
     std::vector<int> vec(10);
     ```
 
-3. `vector(size_t nSize, const T& value)`: 创建一个包含 `nSize` 个元素的 vector，且每个元素的值均为 `value`
+3. `vector(size_type count, const T& value)`: 创建一个包含 `count` 个元素的 vector，且每个元素的值均为 `value`
 
     ```c++
     std::vector<int> vec(10, 5);
@@ -68,21 +68,21 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
 
 ### (2) 大小函数
 
-1. `size_t size() const`: 返回 vector 中存放元素的实际数量（实际存储元素的个数）
+1. `size_type size() const`: 返回 vector 中存放元素的实际数量（实际存储元素的个数）
 
-2. `size_t capacity() const`: 返回 vector 在内存中开辟空间的容量（最多能放多少个元素而不需要重新扩容）
+2. `size_type capacity() const`: 返回 vector 在内存中开辟空间的容量（最多能放多少个元素而不需要重新扩容）
 
-3. `size_t max_size() const`: 返回最大可允许的 vector 元素数量值
+3. `size_type max_size() const`: 返回最大可允许的 vector 元素数量值
 
 4. `bool empty() const`: 返回数组是否为空
 
-5. `void shrink_to_fit()`: 调整数组容量（capacity）刚好适应当前的大小，节省内存
+5. `void shrink_to_fit()`: 请求释放未使用的容量，把 capacity 降到接近 size。这是一个**非强制性请求**，是否生效由实现决定；如果发生了重新分配，所有迭代器、指针和引用都会失效
 
-6. `void resize(size_t count)`: 修改 vector 的**大小（size）**。如果新大小比当前大小大，则用值初始化填充新增元素（可能触发扩容）；如果新大小比当前大小小，则删除多余的元素。
+6. `void resize(size_type count)`: 修改 vector 的**大小（size）**。如果新大小比当前大小大，则用值初始化填充新增元素（可能触发扩容）；如果新大小比当前大小小，则删除多余的元素，但**容量不会随之减小**
 
-7. `void reserve(size_t n)`: 修改 vector 的 **capacity**，为数组预留空间，不改变 size。
+7. `void reserve(size_type new_cap)`: 把 vector 的 **capacity** 提升到不小于 `new_cap`，不改变 size。`reserve()` 只能增大容量，不能用来缩小容量
 
-这几个函数里，`size()`、`capacity()` 和 `reserve()` 是配合使用的重点。`size()` 是当前真正存了多少个元素，`capacity()` 是不扩容的前提下最多能放多少个，两者通常不相等，中间差的那部分就是预留空间。知道要装多少元素时，先 `reserve()` 一次性把容量要到够，可以避免边插入边扩容带来的反复拷贝。
+这几个函数里，`size()`、`capacity()` 和 `reserve()` 是配合使用的重点。`size()` 是当前真正存了多少个元素，`capacity()` 是不扩容的前提下最多能放多少个，两者通常不相等，中间差的那部分就是预留空间。知道要装多少元素时，先 `reserve()` 一次性把容量要到够，可以避免边插入边扩容带来的反复拷贝。不过 `reserve()` 也不是越多越好，如果在每次 `push_back()` 之前都调用一次，容量就会线性增长而不是指数增长，反而会带来更多的重新分配。
 
 对 `std::vector<bool>` 来说，这几个函数同样可用，但要注意 `capacity()` 的单位是**位**而不是字节，返回值表示的是能容纳多少个布尔值，而不是分配了多少内存。
 
@@ -95,28 +95,28 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
    vec.push_back(4);  // 向 vec 中添加元素 4，vec 变为 {1, 2, 3, 4}
    ```
 
-2. `emplace_back(Args&&... args)`: 在 vector 的末尾就地构造一个元素，使用提供的参数直接构造该元素，而不是首先创建元素再添加。这样可以减少不必要的拷贝或移动操作。
+2. `reference emplace_back(Args&&... args)`: 在 vector 的末尾就地构造一个元素，使用提供的参数直接构造该元素，而不是首先创建元素再添加。这样可以减少不必要的拷贝或移动操作。C++17 起返回新插入元素的引用
 
    ```c++
    std::vector<std::pair<int, int>> vec;
    vec.emplace_back(1, 2);  // 在末尾构造一个 pair<int, int>，值为 {1, 2}
    ```
 
-3. `insert(iterator pos, const T& value)`: 在指定位置 `pos` 插入一个元素。元素会被插入到 `pos` 之前，`pos` 之后的元素会被向后移动。
+3. `iterator insert(const_iterator pos, const T& value)`: 在指定位置 `pos` 插入一个元素。元素会被插入到 `pos` 之前，`pos` 之后的元素会被向后移动，返回指向新插入元素的迭代器
 
    ```c++
    std::vector<int> vec = {1, 2, 4, 5};
    vec.insert(vec.begin() + 2, 3);  // 在位置2插入3，vec 变为 {1, 2, 3, 4, 5}
    ```
 
-4. `insert(iterator pos, size_t count, const T& value)`: 在指定位置 `pos` 插入 `count` 个元素，所有的元素值为 `value`。
+4. `iterator insert(const_iterator pos, size_type count, const T& value)`: 在指定位置 `pos` 插入 `count` 个元素，所有的元素值为 `value`，返回指向第一个新插入元素的迭代器（`count == 0` 时返回 `pos`）
 
    ```c++
    std::vector<int> vec = {1, 2, 4, 5};
    vec.insert(vec.begin() + 2, 2, 3);  // 在位置2插入两个 3，vec 变为 {1, 2, 3, 3, 4, 5}
    ```
 
-5. `insert(iterator pos, InputIterator first, InputIterator last)`: 将 `[first, last)` 区间的元素插入到 `pos` 位置。
+5. `iterator insert(const_iterator pos, InputIterator first, InputIterator last)`: 将 `[first, last)` 区间的元素插入到 `pos` 位置。`first` 和 `last` 不能是 `*this` 自己的迭代器，否则行为未定义
 
    ```c++
    std::vector<int> vec1 = {1, 2, 3};
@@ -124,7 +124,7 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
    vec1.insert(vec1.begin() + 2, vec2.begin(), vec2.end());  // 在位置 2 插入 vec2 中的元素，vec1 变为 {1, 2, 4, 5, 3}
    ```
 
-6. `emplace(iterator pos, Args&&... args)`: 在指定位置 `pos` 就地构造一个元素，使用提供的参数直接构造该元素。
+6. `iterator emplace(const_iterator pos, Args&&... args)`: 在指定位置 `pos` 就地构造一个元素，使用提供的参数直接构造该元素，返回指向新插入元素的迭代器
 
    ```c++
    std::vector<std::pair<int, int>> vec;
@@ -133,7 +133,7 @@ vec.push_back(4);   // 可能触发扩容，p 可能已经失效
 
 除了末尾的 `push_back` 和 `emplace_back`，其余插入操作都需要移动插入点之后的元素，代价是 `O(n)`，所以能往末尾加就不要往中间插。
 
-`std::vector<bool>` 的这些函数用法完全一样，但 `operator[]`、`front()`、`back()` 返回的都不是 `bool&`，而是一个代理对象（`std::vector<bool>::reference`），它内部记录了"哪一位"的信息，可以隐式转换成 `bool`，也可以赋值。用起来像引用，但它不是引用，所以 `&vec[0]` 是无法编译的：
+`std::vector<bool>` 的这些函数用法基本一样，但 `operator[]`、`front()`、`back()` 返回的都不是 `bool&`，而是一个代理对象（`std::vector<bool>::reference`），它内部记录了"哪一位"的信息，可以隐式转换成 `bool`，也可以赋值。用起来像引用，但它不是引用，所以 `&vec[0]` 是无法编译的：
 
 ```c++
 std::vector<bool> vec = {true, false, true};
@@ -157,35 +157,35 @@ void doubleAll(std::vector<T>& vec) {
 
 ### (4) 删除函数
 
-1. `pop_back()`: 删除 vector 中的最后一个元素。该函数不会改变容器的容量，只是移除最后一个元素并缩小容器的大小。
+1. `void pop_back()`: 删除 vector 中的最后一个元素。该函数不会改变容器的容量，只是移除最后一个元素并缩小容器的大小。指向最后一个元素的迭代器和引用会失效，`end()` 迭代器也会失效；容器为空时调用属于未定义行为
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4};
    vec.pop_back();  // 删除最后一个元素，vec 变为 {1, 2, 3}
    ```
 
-2. `erase(iterator pos)`: 删除指定位置 `pos` 处的元素。删除后，后面的元素会向前移动。
+2. `iterator erase(const_iterator pos)`: 删除指定位置 `pos` 处的元素。删除后，后面的元素会向前移动，返回指向被删元素之后位置的迭代器（若删的是最后一个元素，则返回 `end()`）
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4};
    vec.erase(vec.begin() + 2);  // 删除索引为2的元素，vec 变为 {1, 2, 4}
    ```
 
-3. `erase(iterator first, iterator last)`: 删除 `[first, last)` 区间内的所有元素。此操作删除从 `first` 到 `last` 之间的元素（不包括 `last`）。
+3. `iterator erase(const_iterator first, const_iterator last)`: 删除 `[first, last)` 区间内的所有元素，返回指向最后一个被删元素之后位置的迭代器
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4, 5};
    vec.erase(vec.begin() + 1, vec.begin() + 4);  // 删除索引从 1 到 3 的元素，vec 变为 {1, 5}
    ```
 
-4. `clear()`: 删除 vector 中的所有元素，容器变为空，但容器的容量不会立即改变，直到发生重新分配。
+4. `void clear()`: 删除 vector 中的所有元素，容器变为空。所有指向元素的迭代器、指针和引用（包括 `end()`）都会失效，但**容量保持不变**
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4};
    vec.clear();  // 删除所有元素，vec 变为空 { }
    ```
 
-删除操作里需要特别留意的是 `erase`。它删除的是 `[first, last)` 区间，删除位置及之后的迭代器、指针和引用都会失效，因此循环中删除元素时不能简单地 `++it`，而要接收 `erase` 返回的新迭代器：
+删除操作里需要特别留意的是 `erase`。它删除的是 `[first, last)` 区间，**删除位置及之后**的迭代器、指针和引用都会失效（C++11 之前甚至连 `erase` 位置本身的迭代器也要求失效），因此循环中删除元素时不能简单地 `++it`，而要接收 `erase` 返回的新迭代器：
 
 ```c++
 std::vector<int> vec = {1, 2, 3, 4, 5, 6};
@@ -205,11 +205,11 @@ for (auto it = vec.begin(); it != vec.end(); ) {
 // vec 变为 {1, 3, 5}
 ```
 
-`std::vector<bool>` 的删除操作和普通 vector 一样，迭代器失效规则也相同，同样要用 `erase` 的返回值继续遍历。
+`std::vector<bool>` 的删除操作接口和普通 vector 一样，`erase` 同样返回后续迭代器，用法也相同。不过 `std::vector<bool>` 的迭代器是封装了位操作的类，并不是指针，所以不能把 `erase` 的返回值当作指针使用。
 
 ### (5) 遍历函数
 
-1. `reference at(size_t pos)`: 返回 `pos` 位置元素的引用。与 `operator[]` 类似，但会检查边界，如果访问无效的位置会抛出 `std::out_of_range` 异常。
+1. `reference at(size_type pos)`: 返回 `pos` 位置元素的引用。与 `operator[]` 类似，但会检查边界，如果 `pos >= size()` 会抛出 `std::out_of_range` 异常
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4, 5};
@@ -288,11 +288,11 @@ for (auto it = vec.begin(); it != vec.end(); ) {
    }
    ```
 
-这里要再提一次 `std::vector<bool>`：它的迭代器不是指针，而是封装了位操作的类，因此不能当指针用，`&*it` 这类写法是非法的。前面提到的基于范围的 `for` 循环在它身上也会失效，因为 `for (auto& x : vec)` 绑定不上代理对象，只能写成 `for (bool x : vec)` 或 `for (auto&& x : vec)` 这样的形式。
+这里要再提一次 `std::vector<bool>`：它的迭代器不是指针，而是封装了位操作的类，因此不能当指针用，`&*it` 这类写法是非法的。前面提到的基于范围的 `for` 循环在它身上也要小心，`for (auto& x : vec)` 绑定不上代理对象，只能写成 `for (bool x : vec)` 或 `for (auto&& x : vec)` 这样的形式。
 
 ### (6) 其他函数
 
-1. `swap(vector& other)`: 交换当前 vector 和另一个 vector 的内容。如果需要“删除”当前 vector 中的元素，可以通过交换将其与一个空的 vector 交换，从而达到清空的效果。
+1. `void swap(vector& other)`: 交换当前 vector 和另一个 vector 的内容（包括 capacity）。它不会对单个元素做拷贝、移动或交换，所以指向元素的迭代器和引用仍然有效，只是跟随元素“搬”到了对方容器里；`end()` 迭代器会失效。如果需要“删除”当前 vector 中的元素，可以通过交换将其与一个空的 vector 交换，从而达到清空的效果
 
    ```c++
    std::vector<int> vec = {1, 2, 3, 4};
@@ -300,14 +300,14 @@ for (auto it = vec.begin(); it != vec.end(); ) {
    vec.swap(emptyVec);  // vec 变为空，emptyVec 变为 {1, 2, 3, 4}
    ```
 
-2. `assign(size_t count, const T& value)`: 将 `count` 个 `value` 元素赋值给当前 vector，替换原有内容。
+2. `void assign(size_type count, const T& value)`: 将 `count` 个 `value` 元素赋值给当前 vector，替换原有内容，所有迭代器、指针和引用都会失效
 
    ```c++
    std::vector<int> vec;
    vec.assign(5, 10);  // 将 vec 赋值为 {10, 10, 10, 10, 10}
    ```
 
-3. `assign(InputIterator first, InputIterator last)`: 使用区间 `[first, last)` 的元素来填充当前 vector，替换原有内容。
+3. `void assign(InputIterator first, InputIterator last)`: 使用区间 `[first, last)` 的元素来填充当前 vector，替换原有内容。`first` 和 `last` 不能是 `*this` 自己的迭代器，否则行为未定义
 
    ```c++
    std::vector<int> vec1 = {1, 2, 3};
@@ -315,7 +315,7 @@ for (auto it = vec.begin(); it != vec.end(); ) {
    vec2.assign(vec1.begin(), vec1.end());  // vec2 变为 {1, 2, 3}
    ```
 
-4. `T* data()`: 返回指向底层数组中首元素的指针，便于与 C 风格接口交互。
+4. `T* data()`: 返回指向底层数组中首元素的指针，便于与 C 风格接口交互。即使容器为空，`[data(), data() + size())` 也始终是一个合法区间，只是此时指针不可解引用
 
    ```c++
    std::vector<int> vec = {1, 2, 3};
@@ -323,7 +323,7 @@ for (auto it = vec.begin(); it != vec.end(); ) {
    std::cout << p[0] << std::endl;  // 输出: 1
    ```
 
-`data()` 是普通 vector 与 C 接口打交道的主要方式，但 `std::vector<bool>` **没有** `data()` 成员，也没有 `bool*` 迭代器，所以 `std::memcpy(buffer, vec.data(), ...)` 这类写法以及任何要求 `bool*` 的 C 函数在它身上都用不了。`std::vector<bool>` 另外提供了一个特有的成员函数 `flip()`，用于翻转容器中所有的布尔值（相当于按位取反），普通 `std::vector` 没有这个函数。
+`data()` 是普通 vector 与 C 接口打交道的主要方式，但 `std::vector<bool>` **没有** `data()` 成员，也没有 `bool*` 迭代器，所以 `std::memcpy(buffer, vec.data(), ...)` 这类写法以及任何要求 `bool*` 的 C 函数在它身上都用不了。另外，`emplace()` 和 `emplace_back()` 这两个函数在 C++11 刚引入时也没有提供给 `std::vector<bool>`，后来通过 LWG 2187 补上了，所以在较老的编译器上这两个函数可能不可用。`std::vector<bool>` 还提供了一个特有的成员函数 `flip()`，用于翻转容器中所有的布尔值（相当于按位取反），普通 `std::vector` 没有这个函数。
 
 ```c++
 std::vector<bool> vec;
