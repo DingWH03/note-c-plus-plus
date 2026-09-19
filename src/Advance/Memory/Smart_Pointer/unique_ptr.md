@@ -1,78 +1,230 @@
-# std::unique\_ptr
+# std::unique_ptr
 
-`std::unique_ptr` 是 C++11 引入的智能指针类型，它为动态内存提供了更加安全和高效的管理方式。与 `std::auto_ptr` 相比，`std::unique_ptr` 引入了更严格的所有权管理机制，避免了隐式所有权转移的问题，并且仅支持通过移动语义来转移资源的所有权。这使得 `std::unique_ptr` 在现代 C++ 中成为管理动态内存的推荐方式。
+`std::unique_ptr` 是 C++11 引入的智能指针，表示对资源的**独占所有权**。它应该是你管理堆对象时的默认选择——没有额外开销，语义清晰，不会出现「不知道谁负责释放」的问题。
 
-## 定义与基本功能
+## 一、基本用法
 
-`std::unique_ptr` 是一个模板类，用于管理指向动态分配内存的指针。它确保在其生命周期结束时自动释放资源，避免了开发者手动管理内存的复杂性。该类型的主要目标是明确地控制资源的所有权，确保资源只会被一个指针持有，避免内存泄漏和资源重复释放的风险。
+```c++
+#include <memory>
 
-```cpp
-template<
-    class T,
-    class Deleter = std::default_delete<T>
-> class unique_ptr;
+// 推荐：用 make_unique 创建（C++14）
+auto p = std::make_unique<MyClass>(42);
+
+// 也可以用裸指针构造（C++11）
+std::unique_ptr<MyClass> p2(new MyClass(42));
+
+p->doSomething();   // 像普通指针一样使用
+(*p).doSomething();
 ```
 
-```cpp
-template <
-    class T,
-    class Deleter
-> class unique_ptr<T[], Deleter>;
+`unique_ptr` 的大小和裸指针一样（64 位系统上 8 字节），因为它不需要存引用计数之类的额外信息——所有权是唯一的，销毁时机在编译期就确定了。
+
+> 优先用 `std::make_unique` 而不是 `new`。除了更简洁，它还能避免一个微妙的异常安全问题：
+>
+> ```c++
+> // 危险：如果 MyClass 构造抛异常，或者 g() 抛异常，
+> // 都可能让 new 出来的内存泄漏
+> f(std::unique_ptr<MyClass>(new MyClass()), g());
+>
+> // 安全
+> f(std::make_unique<MyClass>(), g());
+> ```
+
+## 二、所有权转移
+
+`unique_ptr` **不能拷贝**，只能移动：
+
+```c++
+auto p1 = std::make_unique<MyClass>();
+// auto p2 = p1;                 // 编译错误：不能拷贝
+auto p2 = std::move(p1);         // 正确：转移所有权
+
+// 此时 p1 变为 nullptr
+if (!p1)
+    std::cout << "p1 已失去所有权\n";
 ```
 
-与 `std::auto_ptr` 不同，`std::unique_ptr` 不允许拷贝操作，它只支持移动操作。这样，`std::unique_ptr` 可以避免由于不明确的所有权转移所引发的错误和 bug。资源的所有权转移只能通过 `std::move` 完成，这使得程序员可以清晰地看到何时发生了所有权的转移，避免了拷贝构造和赋值操作带来的隐式问题。
+这个限制是有意设计的。如果允许拷贝，两个 `unique_ptr` 会指向同一对象，销毁时就会重复释放。用 `std::move` 显式转移，代码里所有权流转一目了然。
 
-## 资源管理的所有权控制
+### 作为函数参数与返回值
 
-`std::unique_ptr` 的核心特性之一就是它持有资源的 **唯一所有权**。每个 `std::unique_ptr` 都确保它是唯一拥有所指向对象的所有者。当 `std::unique_ptr` 被销毁时，它会自动释放所管理的内存，无需开发者手动调用 `delete`，从而降低了内存泄漏的风险。由于不允许拷贝构造或拷贝赋值操作，`std::unique_ptr` 使得资源的所有权在多个指针之间的共享变得不可能，从而避免了多个指针指向同一资源时可能导致的多重释放或悬空指针问题。
+```c++
+// 接管所有权：调用者不能再使用
+void takeOwnership(std::unique_ptr<MyClass> p);
 
-例如，考虑以下代码片段：
+// 只借用：不涉及所有权转移
+void useObject(const MyClass& obj);
+void useObject(MyClass* obj);
 
-```cpp
-std::unique_ptr<MyClass> ptr1(new MyClass());
-std::unique_ptr<MyClass> ptr2 = std::move(ptr1);  // 转移所有权
-```
-
-在这段代码中，`ptr1` 的所有权通过 `std::move` 转移给 `ptr2`，`ptr1` 变为一个空指针，无法再访问原始资源。资源的所有权不再在多个指针之间共享，因此 `ptr1` 不再需要释放资源。
-
-## 移动语义
-
-`std::unique_ptr` 支持 **移动语义**，意味着资源的所有权可以从一个 `unique_ptr` 移动到另一个 `unique_ptr`。通过移动构造函数或移动赋值操作，资源的所有权会被安全地转移，而不会引发不必要的复制操作。与拷贝构造不同，移动操作并不会增加资源的引用计数，也不会创建多个指针指向同一个对象。移动语义使得内存管理更加高效，并避免了性能上的冗余开销。
-
-```cpp
-std::unique_ptr<MyClass> ptr1(new MyClass());
-std::unique_ptr<MyClass> ptr2 = std::move(ptr1);  // 使用移动语义转移所有权
-```
-
-这里，`ptr1` 的所有权被移动到 `ptr2`，`ptr1` 被置为空。这样，`std::unique_ptr` 能够在不产生冗余复制的情况下实现资源所有权的转移。
-
-## 自动销毁与内存管理
-
-`std::unique_ptr` 在其生命周期结束时会自动释放它所持有的资源。它的析构函数会在 `unique_ptr` 被销毁时自动调用所管理对象的析构函数，这意味着开发者无需手动管理内存的释放操作。通过这种方式，`std::unique_ptr` 减少了内存泄漏的可能性，也避免了因为忘记释放内存而导致的错误。
-
-例如，在函数的作用域结束时，`std::unique_ptr` 会自动释放它管理的资源：
-
-```cpp
-void createObject() {
-    std::unique_ptr<MyClass> ptr(new MyClass());
-    // 自动释放 ptr 管理的内存
+// 返回所有权：把资源交给调用者
+std::unique_ptr<MyClass> create()
+{
+    return std::make_unique<MyClass>();   // 移动语义，无拷贝开销
 }
 ```
 
-当 `createObject` 函数结束时，`ptr` 会被销毁，它所管理的 `MyClass` 对象也会被自动释放。
+函数返回局部 `unique_ptr` 时不需要写 `std::move`，编译器会自动应用移动（NRVO 或隐式移动）。
 
-## 不支持复制，支持移动
+## 三、常用接口
 
-与 `std::auto_ptr` 不同，`std::unique_ptr` 设计上不支持拷贝构造和拷贝赋值操作，因此不会发生隐式所有权转移的问题。若需要转移所有权，开发者必须显式地使用 `std::move` 进行资源的转移，这使得代码中资源所有权的转移变得更加明确和安全。这种设计使得 `std::unique_ptr` 在资源管理上更加清晰，避免了由于误用或隐式操作而引发的错误。
+| 接口 | 作用 |
+| :--- | :--- |
+| `get()` | 返回裸指针，不转移所有权 |
+| `release()` | 放弃所有权并返回裸指针，**需要手动 delete** |
+| `reset(p)` | 释放当前对象，接管新指针 `p`（默认 `nullptr`） |
+| `swap(other)` | 交换两个 `unique_ptr` |
+| `operator bool` | 是否持有对象 |
+| `operator*` / `operator->` | 访问对象 |
 
-```cpp
-std::unique_ptr<MyClass> ptr1(new MyClass());
-std::unique_ptr<MyClass> ptr2 = ptr1;  // 编译错误，不能拷贝
+```c++
+auto p = std::make_unique<int>(42);
+
+int* raw = p.get();          // 只读，p 仍然拥有
+
+p.reset();                   // 释放对象，p 变为空
+p.reset(new int(100));       // 释放旧的，接管新的
+
+if (p)                       // 判空
+    std::cout << *p << '\n';
 ```
 
-这段代码会编译错误，因为 `std::unique_ptr` 不允许拷贝构造。唯一的方式是使用 `std::move` 来进行所有权的转移：
+`release()` 要小心使用——它把所有权交还给裸指针，之后必须自己 `delete`：
 
-```cpp
-std::unique_ptr<MyClass> ptr1(new MyClass());
-std::unique_ptr<MyClass> ptr2 = std::move(ptr1);  // 通过移动操作转移所有权
+```c++
+auto p = std::make_unique<int>(42);
+int* raw = p.release();   // p 变空，raw 需要手动管理
+delete raw;               // 别忘了
 ```
+
+它主要用于与 C 风格接口交接所有权。
+
+## 四、数组支持
+
+`unique_ptr` 有数组特化版本 `unique_ptr<T[]>`，它使用 `delete[]` 而非 `delete`：
+
+```c++
+auto arr = std::make_unique<int[]>(10);   // 10 个 int
+
+arr[0] = 1;      // 支持 operator[]
+arr[9] = 10;
+// 自动 delete[]，无需手动管理
+```
+
+不过大多数情况下 `std::vector` 是更好的选择——它知道自己的大小，支持迭代器和算法。
+
+## 五、自定义删除器
+
+`unique_ptr` 的第二个模板参数是删除器，可以自定义释放方式：
+
+```c++
+template<class T, class Deleter = std::default_delete<T>>
+class unique_ptr;
+```
+
+这让 `unique_ptr` 能管理任何「需要释放」的资源，不限于 `new` 出来的内存：
+
+```c++
+// 管理文件
+auto fileDeleter = [](FILE* f) { if (f) fclose(f); };
+std::unique_ptr<FILE, decltype(fileDeleter)> file(fopen("a.txt", "r"), fileDeleter);
+
+// 管理 malloc 的内存
+std::unique_ptr<int, decltype(&std::free)> buf(
+    (int*)std::malloc(sizeof(int) * 10), &std::free);
+
+// 管理 socket
+auto socketDeleter = [](int* fd) { if (*fd >= 0) close(*fd); delete fd; };
+std::unique_ptr<int, decltype(socketDeleter)> sock(new int(fd), socketDeleter);
+```
+
+注意：**使用自定义删除器后，`unique_ptr` 的大小可能变大**（需要存储删除器对象）。无状态的删除器（如函数指针、无捕获 lambda）通常不增加大小，因为编译器可以做空基类优化。
+
+## 六、作为类成员
+
+`unique_ptr` 常用于实现 **Pimpl 惯用法**（Pointer to Implementation），把实现细节隐藏起来：
+
+```c++
+// widget.h
+class Widget
+{
+public:
+    Widget();
+    ~Widget();                          // 必须在 .cpp 中定义
+    Widget(Widget&&) noexcept;          // 同上
+    Widget& operator=(Widget&&) noexcept;
+
+    void doSomething();
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;        // 只暴露前置声明
+};
+
+// widget.cpp
+struct Widget::Impl
+{
+    std::string data;
+    // 复杂的实现细节
+};
+
+Widget::Widget() : impl_(std::make_unique<Impl>()) {}
+Widget::~Widget() = default;            // Impl 在这里才是完整类型
+```
+
+这样做的好处：
+
+- 头文件不需要包含实现依赖，加快编译
+- 修改实现不会导致使用方重新编译
+- 保持 ABI 稳定
+
+注意析构函数必须在 `.cpp` 中定义——因为在头文件里 `Impl` 还是不完整类型，`unique_ptr` 的析构需要完整类型。
+
+## 七、作为工厂函数返回值
+
+工厂函数返回 `unique_ptr` 是标准做法，把所有权明确交给调用者：
+
+```c++
+class Shape
+{
+public:
+    virtual ~Shape() = default;
+    virtual void draw() const = 0;
+};
+
+std::unique_ptr<Shape> createShape(const std::string& type)
+{
+    if (type == "circle")
+        return std::make_unique<Circle>();
+    if (type == "square")
+        return std::make_unique<Square>();
+    return nullptr;
+}
+
+// 使用
+auto shape = createShape("circle");
+if (shape)
+    shape->draw();
+```
+
+这里基类的析构函数必须是 `virtual`，否则通过基类指针删除派生类对象是未定义行为。
+
+## 八、常见误区
+
+**「`unique_ptr` 不能放进容器」** —— 可以，但容器需要支持移动。`std::vector<std::unique_ptr<T>>` 是合法的，只是不能用需要拷贝的操作（如 `std::copy`）。
+
+**「返回 `unique_ptr` 一定要写 `std::move`」** —— 返回局部变量时不需要，编译器会隐式移动。写 `std::move` 反而可能阻止 NRVO 优化。
+
+**「`get()` 返回的指针可以随便用」** —— `get()` 只是借用，`unique_ptr` 销毁后该指针立刻悬垂。不要保存它。
+
+**「`release()` 之后 `unique_ptr` 还会释放」** —— 不会。`release()` 就是放弃所有权，之后必须自己管理。
+
+**「自定义删除器不影响大小」** —— 有状态的删除器会增加 `unique_ptr` 的大小。无状态删除器通常不增加。
+
+**「`unique_ptr` 可以拷贝到 `shared_ptr`」** —— 可以，用移动：`std::shared_ptr<T> sp = std::move(up);`。这是把独占所有权升级为共享所有权的唯一方式。
+
+## 九、相关章节
+
+- [智能指针](../Smart_Pointer.md)：三种智能指针的对比与选择
+- [shared_ptr](./shared_ptr.md)：需要共享所有权时
+- [RAII 与资源管理](../RAII.md)：`unique_ptr` 背后的设计思想
+- [拷贝控制](../../Object/Copy_Control.md)：移动语义与 Rule of Five
