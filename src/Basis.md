@@ -8,11 +8,12 @@ C++基础部分包括语言的核心语法与程序结构，理解从“源代�
 
 | 章节 | 说明 |
 | :--- | :--- |
-| [基础概念与环境](./Basis/Concept.md) | 程序结构、预处理器、命名空间、编译运行、注释与命名规则 |
+| [基础概念与环境](./Basis/Concept.md) | 程序结构、预处理器、命名空间、编译运行、编译与链接、注释与命名规则 |
 | [数据类型](./Basis/Types.md) | 基本类型、派生类型、字符串、类型转换与类型推导 |
 | [变量与常量](./Basis/Variable_Constant.md) | 变量的作用域与存储类型，`const`、`constexpr` 与枚举 |
 | [控制结构](./Basis/Structure.md) | 循环、判断与条件运算符 |
 | [操作符](./Basis/Operators.md) | 各类运算符的语义、优先级与结合性 |
 | [函数](./Basis/Functions.md) | 声明与定义、参数传递、默认参数、重载与内联 |
+| [Lambda 表达式](./Basis/Lambda.md) | 捕获列表、泛型 lambda、`mutable` 与闭包类型 |
 | [类与对象](./Basis/Class_Object.md) | 类的组成、访问控制、构造与析构、对象生命周期 |
 | [模板](./Basis/Template.md) | 函数模板、类模板、特化与参数推导 |

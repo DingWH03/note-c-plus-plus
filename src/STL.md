@@ -16,5 +16,6 @@ C++ 标准模板库（Standard Template Library，STL）是一套功能强大的
 | :--- | :--- |
 | [Utility](./STL/Utility.md) | `pair`、`tuple`、`optional`、`variant`、`any` 等工具类型 |
 | [Containers](./STL/Containers.md) | 序列容器、关联容器、无序容器与容器适配器 |
-| [Iterators](./STL/Iterators.md) | 待补充：迭代器分类、适配器与失效规则 |
+| [Iterators](./STL/Iterators.md) | 迭代器分类、适配器、失效规则与 C++20 概念 |
+| [Ranges](./STL/Ranges.md) | C++20 视图、管道语法与惰性求值 |
 | [Algorithms](./STL/Algorithms.md) | 非修改序列操作、修改序列操作、排序、数值与未初始化内存操作 |

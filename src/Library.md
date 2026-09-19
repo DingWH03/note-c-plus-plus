@@ -30,5 +30,5 @@ STL（Standard Template Library）最初是一个独立的库，后来被纳入�
 | [随机数 (random)](./Library/Random.md) | 待补充：随机数引擎与分布 |
 | [正则表达式 (regex)](./Library/Regex.md) | 待补充：正则匹配、搜索与替换 |
 | [文件系统 (filesystem)](./Library/Filesystem.md) | 待补充：路径操作与目录遍历 |
-| [字符串 (string)](./Library/String.md) | 待补充：`std::string` 与 `std::string_view` |
+| [字符串 (string)](./Library/String.md) | `std::string` 接口、SSO 与 `std::string_view` |
 | [格式化输出 (format)](./Library/Format.md) | 待补充：`std::format` 与 `std::print` |
