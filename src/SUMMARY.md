@@ -42,7 +42,7 @@
     - [虚函数与多态](./Advance/Object/Virtual_Function.md)
     - [友元与类关系](./Advance/Object/Friend_and_Relationship.md)
     - [类模板与函数模板高级应用](./Advance/Object/Template_Advanced.md)
-    - [类型转换与转换运算符](./Advance/Object/Type_Conversion.md)
+    - [转换运算符与隐式转换](./Advance/Object/Conversion_Operators.md)
     - [拷贝控制](./Advance/Object/Copy_Control.md)
     - [C++ 新特性](./Advance/Object/CPP_Modern_Features.md)
   - [异常处理](./Advance/Exception.md)
