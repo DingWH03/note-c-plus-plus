@@ -24,11 +24,11 @@ STL（Standard Template Library）最初是一个独立的库，后来被纳入�
 | :--- | :--- |
 | [文件与流](./Library/Stream.md) | 流模型与类层次结构总览 |
 | [标准输入输出流 (iostream)](./Library/Stream/Iostream.md) | `cin` / `cout` / `cerr` / `clog` 与格式化控制 |
-| [文件流 (fstream)](./Library/Stream/Fstream.md) | 文件读写、打开模式与错误处理 |
+| [文件流 (fstream)](./Library/Stream/Fstream.md) | 文件读写、打开模式、二进制与随机访问 |
 | [字符串流 (sstream)](./Library/Stream/Sstream.md) | 内存字符串的解析与拼接 |
-| [时间库 (chrono)](./Library/Chrono.md) | 待补充：时长、时间点与时钟 |
-| [随机数 (random)](./Library/Random.md) | 待补充：随机数引擎与分布 |
-| [正则表达式 (regex)](./Library/Regex.md) | 待补充：正则匹配、搜索与替换 |
-| [文件系统 (filesystem)](./Library/Filesystem.md) | 待补充：路径操作与目录遍历 |
 | [字符串 (string)](./Library/String.md) | `std::string` 接口、SSO 与 `std::string_view` |
-| [格式化输出 (format)](./Library/Format.md) | 待补充：`std::format` 与 `std::print` |
+| [时间库 (chrono)](./Library/Chrono.md) | 时长、时间点、时钟与 C++20 日历 |
+| [随机数 (random)](./Library/Random.md) | 随机数引擎、分布与正确用法 |
+| [正则表达式 (regex)](./Library/Regex.md) | 正则匹配、捕获组、遍历与替换 |
+| [文件系统 (filesystem)](./Library/Filesystem.md) | 路径操作、目录遍历与文件属性 |
+| [格式化输出 (format)](./Library/Format.md) | `std::format` 与 `std::print` |
