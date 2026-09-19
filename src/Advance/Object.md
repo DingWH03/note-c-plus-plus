@@ -31,3 +31,16 @@
 这一章的目标，不是单纯记住语法，而是要能回答：
 
 > “当我写下一个类、继承一个父类、重载一个函数时，编译器究竟在背后做了什么？”
+
+## 本章内容
+
+| 章节 | 说明 |
+| :--- | :--- |
+| [运算符重载](./Object/Operator_Overloading.md) | 成员函数与友元函数的选择、各类运算符的重载方式、返回值设计 |
+| [继承](./Object/Inheritance.md) | 继承方式、构造析构顺序、多重继承与菱形问题、虚继承 |
+| [虚函数与多态](./Object/Virtual_Function.md) | 虚表机制、动态绑定、虚析构、纯虚函数与抽象类 |
+| [友元与类关系](./Object/Friend_and_Relationship.md) | 友元函数与友元类、组合/聚合/依赖关系的选择 |
+| [类模板与函数模板高级应用](./Object/Template_Advanced.md) | 可变参数模板、SFINAE、Concepts、CRTP 与模板元编程 |
+| [类型转换与转换运算符](./Object/Conversion_Operators.md) | 转换构造函数、`operator type()`、`explicit` 与二义性 |
+| [拷贝控制](./Object/Copy_Control.md) | 五个特殊成员函数、深浅拷贝、Rule of Three/Five/Zero |
+| [C++ 新特性](./Object/CPP_Modern_Features.md) | 值类别、移动语义、`constexpr`、`noexcept` 与类设计 |
