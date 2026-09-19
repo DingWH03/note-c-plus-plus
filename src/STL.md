@@ -9,3 +9,12 @@ C++ 标准模板库（Standard Template Library，STL）是一套功能强大的
 | **迭代器 (Iterators)**  | 迭代器用于遍历容器中的元素，允许以统一的方式访问容器中的元素，而不用关心容器的内部实现细节。STL 提供了多种类型的迭代器，包括随机访问迭代器、双向迭代器、前向迭代器和输入输出迭代器等。 |
 | **函数对象 (Function Objects)** | 函数对象是可以像函数一样调用的对象，可以用于算法中的各种操作。STL 提供了多种函数对象，包括一元函数对象、二元函数对象、谓词等，可以满足不同的需求。 |
 | **适配器 (Adapters)**  | 适配器用于将一种容器或迭代器适配成另一种容器或迭代器，以满足特定的需求。STL 提供了多种适配器，包括栈适配器（stack adapter）、队列适配器（queue adapter）和优先队列适配器（priority queue adapter）等。 |
+
+## 本章内容
+
+| 章节 | 说明 |
+| :--- | :--- |
+| [Utility](./STL/Utility.md) | `pair`、`tuple`、`optional`、`variant`、`any` 等工具类型 |
+| [Containers](./STL/Containers.md) | 序列容器、关联容器、无序容器与容器适配器 |
+| [Iterators](./STL/Iterators.md) | 待补充：迭代器分类、适配器与失效规则 |
+| [Algorithms](./STL/Algorithms.md) | 非修改序列操作、修改序列操作、排序、数值与未初始化内存操作 |

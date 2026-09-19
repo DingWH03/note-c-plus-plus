@@ -19,7 +19,7 @@
 
 5. 面向对象的三大特征是什么？
 
-    - [类与对象-三大特征](./Basis/CLass&Object.md#四面向对象的三大特征)
+    - [类与对象-三大特征](./Basis/Class_Object.md#四面向对象的三大特征)
 
 6. typedef和define有什么区别？
 
