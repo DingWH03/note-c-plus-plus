@@ -45,6 +45,7 @@
     - [类型转换与转换运算符](./Advance/Object/Type_Conversion.md)
     - [拷贝控制](./Advance/Object/Copy_Control.md)
     - [C++ 新特性](./Advance/Object/CPP_Modern_Features.md)
+  - [异常处理](./Advance/Exception.md)
   - [多线程与并发](./Advance/Concurrency.md)
 - [STL](./STL.md)
   - [Utility](./STL/Utility.md)
